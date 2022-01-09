@@ -50,12 +50,27 @@ func GetUser(id int) (user User, err error) {
 }
 
 // userの更新
+//　引数を指定し入ってくるものを限定した方がいいのでは？
 func (u *User) UpdateUser() (err error) {
 	// nameとemailを更新する
-	// ?はどんな意味？
+	// ?は入力値
 	cmd := `update users set name = ? , email = ? where id = ?`
 
 	_, err = Db.Exec(cmd, u.Name, u.Email, u.ID)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return err
+}
+
+// userの削除
+func (u *User) DeleteUser() (err error) {
+
+	cmd := `delete from users where id = ?`
+
+	_, err = Db.Exec(cmd, u.ID)
 
 	if err != nil {
 		log.Fatalln(err)
