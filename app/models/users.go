@@ -48,3 +48,18 @@ func GetUser(id int) (user User, err error) {
 	)
 	return user, err
 }
+
+// userの更新
+func (u *User) UpdateUser() (err error) {
+	// nameとemailを更新する
+	// ?はどんな意味？
+	cmd := `update users set name = ? , email = ? where id = ?`
+
+	_, err = Db.Exec(cmd, u.Name, u.Email, u.ID)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return err
+}
