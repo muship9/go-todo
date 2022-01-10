@@ -20,8 +20,9 @@ var Db *sql.DB
 var err error
 
 const (
-	tableNameUser = "users"
-	tableNameTodo = "todos"
+	tableNameUser    = "users"
+	tableNameTodo    = "todos"
+	tableNameSession = "sessions"
 )
 
 // main関数より先に実行したいため、initに記述
@@ -48,6 +49,15 @@ func init() {
 		created_at DATETIME)`, tableNameTodo)
 
 	Db.Exec(cmdT)
+
+	cmdS := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s(
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		uuid STRING NOT NULL UNIQUE,
+		email STRING,
+		user_id INTEGER,
+		created_at DATETIME)`, tableNameSession)
+
+	Db.Exec(cmdS)
 }
 
 func createUUID() (uuidobj uuid.UUID) {
