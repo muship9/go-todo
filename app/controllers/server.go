@@ -7,6 +7,8 @@ import (
 
 // サーバーの立ち上げ
 func StartMainServer() error {
+	files := http.FileServer(http.Dir(config.Config.Static))
+	http.Handle("/static/", http.StripPrefix("/static/", files))
 	// URLの登録 / TOPページに接続
 	http.HandleFunc("/", top)
 	// デフォルトのマルチプレクサを使うため、nilを渡す
