@@ -40,6 +40,7 @@ func StartMainServer() error {
 	http.HandleFunc("/signup", signup)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/authenticate", authenticate)
+	http.HandleFunc("/logout", logout)
 	http.HandleFunc("/todos", index)
 	// デフォルトのマルチプレクサを使うため、nilを渡す
 	// デフォルトのマルチプレクサは登録されていないURLにアクセスしたら404にアクセスされる
