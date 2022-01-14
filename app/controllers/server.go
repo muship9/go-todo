@@ -6,6 +6,8 @@ import (
 	"go-todo/config"
 	"html/template"
 	"net/http"
+	"regexp"
+	"strconv"
 )
 
 func generateHTML(writer http.ResponseWriter, data interface{}, fileNames ...string) {
@@ -31,6 +33,29 @@ func session(w http.ResponseWriter, r *http.Request) (sess models.Session, err e
 	return sess, err
 }
 
+// URLの正規表現をコンパイル
+var validPath = regexp.MustCompile("^/todos/(edit|update)/([0-9]+)$")
+
+func parseURL(fn func(http.ResponseWriter, *http.Request, int)) http.HandlerFunc {
+	//	http.HandlerFunc handler関数を返す関数
+	return func(w http.ResponseWriter, r *http.Request) {
+		q := validPath.FindStringSubmatch(r.URL.Path)
+		if q == nil {
+			http.NotFound(w, r)
+			return
+		}
+		// int型に直す
+		qi, err := strconv.Atoi(q[2])
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+
+		fn(w, r, qi)
+	}
+
+}
+
 // サーバーの立ち上げ
 func StartMainServer() error {
 	files := http.FileServer(http.Dir(config.Config.Static))
@@ -44,6 +69,9 @@ func StartMainServer() error {
 	http.HandleFunc("/todos", index)
 	http.HandleFunc("/todos/new", todoNew)
 	http.HandleFunc("/todos/save", todoSave)
+	http.HandleFunc("/todos/update/", parseURL(todoUpdate))
+	// 末尾が/はURLが一致するか調べる　/無しは完全一致
+	http.HandleFunc("/todos/edit/", parseURL(todoEdit))
 	// デフォルトのマルチプレクサを使うため、nilを渡す
 	// デフォルトのマルチプレクサは登録されていないURLにアクセスしたら404にアクセスされる
 	return http.ListenAndServe(":"+config.Config.Port, nil)
