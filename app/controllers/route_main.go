@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -15,11 +16,18 @@ func top(w http.ResponseWriter, r *http.Request) {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	// loginしているかの判別
-	_, err := session(w, r)
+	// cookieを取得　-> 一致しているものがあれば
+	sess, err := session(w, r)
 	if err != nil {
 		http.Redirect(w, r, "/", 302)
 	} else {
-		generateHTML(w, nil, "layout", "private_navbar", "index")
+		user, err := sess.GetUserBySession()
+		if err != nil {
+			log.Println(err)
+		}
+		// userが作成したtodoの一覧
+		todos, _ := user.GetTodosByUser()
+		user.Todos = todos
+		generateHTML(w, user, "layout", "private_navbar", "index")
 	}
 }
