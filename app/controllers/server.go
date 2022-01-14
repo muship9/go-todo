@@ -34,7 +34,7 @@ func session(w http.ResponseWriter, r *http.Request) (sess models.Session, err e
 }
 
 // URLの正規表現をコンパイル
-var validPath = regexp.MustCompile("^/todos/(edit|update)/([0-9]+)$")
+var validPath = regexp.MustCompile("^/todos/(edit|update|delete)/([0-9]+)$")
 
 func parseURL(fn func(http.ResponseWriter, *http.Request, int)) http.HandlerFunc {
 	//	http.HandlerFunc handler関数を返す関数
@@ -72,6 +72,7 @@ func StartMainServer() error {
 	http.HandleFunc("/todos/update/", parseURL(todoUpdate))
 	// 末尾が/はURLが一致するか調べる　/無しは完全一致
 	http.HandleFunc("/todos/edit/", parseURL(todoEdit))
+	http.HandleFunc("/todos/delete/", parseURL(todoDelete))
 	// デフォルトのマルチプレクサを使うため、nilを渡す
 	// デフォルトのマルチプレクサは登録されていないURLにアクセスしたら404にアクセスされる
 	return http.ListenAndServe(":"+config.Config.Port, nil)
